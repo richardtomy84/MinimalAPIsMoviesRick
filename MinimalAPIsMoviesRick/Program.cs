@@ -13,7 +13,6 @@ builder.Services.AddScoped<IGenresRepository, GenresRepository>();
 
 var lastName = builder.Configuration.GetValue<string>("lastName");
 
-
 // Service Zone - End
 
 if (lastName is not null )
@@ -44,6 +43,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var genresEndpoints = app.MapGroup("/genres");
 
 
 
@@ -93,13 +93,13 @@ app.MapGet("/genres", () =>
 
 */
 
-app.MapGet("/genres",async (IGenresRepository genresRepository) =>
+genresEndpoints.MapGet("", async (IGenresRepository genresRepository) =>
 {   
     return await genresRepository.GetAll(); 
 
 }).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("genres-get"));
 
-app.MapGet("/genres/{id:int}", async (int id,IGenresRepository genresRepository) =>{ 
+genresEndpoints.MapGet("/{id:int}", async (int id,IGenresRepository genresRepository) =>{ 
 
     var genre = await genresRepository.GetById(id);
 
@@ -113,7 +113,7 @@ app.MapGet("/genres/{id:int}", async (int id,IGenresRepository genresRepository)
 );
 
 //Data from SQL
-app.MapPost("/genres", async (Genre genre,IGenresRepository genresRepository,IOutputCacheStore outputCacheStore) => { 
+genresEndpoints.MapPost("/", async (Genre genre,IGenresRepository genresRepository,IOutputCacheStore outputCacheStore) => { 
     var id=  await genresRepository.Create(genre);
     await outputCacheStore.EvictByTagAsync("genres-get", default);
    // return TypedResults.Ok(genre);
@@ -122,7 +122,7 @@ app.MapPost("/genres", async (Genre genre,IGenresRepository genresRepository,IOu
 
 });
 
-app.MapPut("/genres/{id:int}", async (int id, Genre genre,IGenresRepository repository, IOutputCacheStore  outputCacheStore) => {
+genresEndpoints.MapPut("/{id:int}", async (int id, Genre genre,IGenresRepository repository, IOutputCacheStore  outputCacheStore) => {
 
     var exists = await repository.Exists(id);
 
@@ -136,7 +136,7 @@ app.MapPut("/genres/{id:int}", async (int id, Genre genre,IGenresRepository repo
     return Results.NoContent();
 });
 
-app.MapDelete("/genres/{id:int}", async (int id, IGenresRepository repository, IOutputCacheStore outputCacheStore) =>
+genresEndpoints.MapDelete("/{id:int}", async (int id, IGenresRepository repository, IOutputCacheStore outputCacheStore) =>
 {
     var exists = await repository.Exists(id); 
     
