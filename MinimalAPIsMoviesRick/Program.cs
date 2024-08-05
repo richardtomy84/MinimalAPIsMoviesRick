@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Options;
 using MinimalAPIsMoviesRick.Entities;
@@ -108,7 +109,7 @@ genresEndpoints.MapGet("/{id:int}", async (int id,IGenresRepository genresReposi
         return Results.NotFound();
     }
     return Results.Ok(genre);
- 
+
 }
 );
 
@@ -151,3 +152,9 @@ genresEndpoints.MapDelete("/{id:int}", async (int id, IGenresRepository reposito
 });
 //Middlewares Zone - End
 app.Run();
+
+static async Task<Ok<List<Genre>>> GetGenre(IGenresRepository repository) 
+{   
+    var geners = await repository.GetAll();
+    return TypedResults.Ok(geners);
+} 
