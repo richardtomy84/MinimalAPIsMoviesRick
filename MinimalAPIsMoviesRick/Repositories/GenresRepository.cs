@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using MinimalAPIsMoviesRick.Entities;
+using System.Data;
 
 namespace MinimalAPIsMoviesRick.Repositories
 {
@@ -55,7 +56,7 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                var genres = await connection.QueryAsync<Genre>(@"SELECT Id,Name from Geners");
+                var genres = await connection.QueryAsync<Genre>(@"Genres_GetAll",commandType:CommandType.StoredProcedure);
                 return genres.ToList();
             }
 
