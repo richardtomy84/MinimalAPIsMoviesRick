@@ -8,7 +8,7 @@ namespace MinimalAPIsMoviesRick.Utilities
         public AutoMapperProfiles() {
 
             CreateMap<Genre, GenreDTO>();
-            CreateMap<GenreDTO, Genre>();
+            CreateMap<CreateGenreDTO, Genre>();
 
 
         

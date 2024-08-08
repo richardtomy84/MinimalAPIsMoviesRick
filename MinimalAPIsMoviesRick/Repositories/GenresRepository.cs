@@ -19,12 +19,14 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using (var connection = new SqlConnection(connectionString))
             {
-
+                /*
                 //  var query = connection.Query("select 1").FirstOrDefault(); 
                 var query = @"insert into Geners (Name) Values (@Name);
                             select SCOPE_IDENTITY();";
 
-                var id = await connection.QuerySingleAsync<int>(query,genre);
+                var id = await connection.QuerySingleAsync<int>(query,genre); */
+                var id = await connection.QuerySingleAsync<int>("Genres_create", genre);
+
                 genre.Id = id;
                 return id;
             }
@@ -66,9 +68,13 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                var genre = await connection.QueryFirstOrDefaultAsync<Genre>(@"SELECT Id,Name 
+                /*
+                var genre = await connection.QueryFirstOrDefaultAsync<Genre>(@"SELECT Id,Name  
                                              from Geners where 
-                                             id = @Id",  new {id});
+                                             id = @Id",  new {id});*/
+                var genre = await connection.QueryFirstOrDefaultAsync<Genre>(@"Genres_GetById", new { id }, commandType: CommandType.StoredProcedure);
+
+
                 return genre;
             }
 
