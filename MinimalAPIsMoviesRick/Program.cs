@@ -13,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
     
 builder.Services.AddScoped<IGenresRepository, GenresRepository>();
 
+builder.Services.AddScoped<IActorsRepository, ActorsRepository>();
+
 var lastName = builder.Configuration.GetValue<string>("lastName");
 
 // Service Zone - End
@@ -47,14 +49,14 @@ builder.Services.AddAutoMapper(typeof(Program));
 var app = builder.Build();
 
  app.MapGroup("/genres").MapGenres();  // Removed var genresEndpoints =
-
+ app.MapGroup("/actors").MapActors();
 
 
 //Middlewares Zone - Begin
 
 if (builder.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger();   
     app.UseSwaggerUI();
 
 }

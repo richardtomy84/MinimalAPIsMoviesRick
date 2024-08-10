@@ -25,7 +25,8 @@ namespace MinimalAPIsMoviesRick.Repositories
                             select SCOPE_IDENTITY();";
 
                 var id = await connection.QuerySingleAsync<int>(query,genre); */
-                var id = await connection.QuerySingleAsync<int>("Genres_create", genre);
+                var id = await connection.QuerySingleAsync<int>("Genres_create",
+                   new { genre.Name  });
 
                 genre.Id = id;
                 return id;
@@ -37,8 +38,12 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using(var connection = new SqlConnection(connectionString))
             {
+                /*
                 var query = @"delete from Geners where Id=@id ";
-                     await connection.ExecuteAsync(query,new { id });
+                     await connection.ExecuteAsync(query,new { id }); */
+                //Genres_Delete
+                await connection.ExecuteAsync("Genres_Delete", new { id }, commandType: CommandType.StoredProcedure); 
+
             }
         }
 
@@ -46,10 +51,7 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using(var connection = new SqlConnection(connectionString))
             {
-                var exists = await connection.QuerySingleAsync<bool>(@"if exists(select 1 from Geners where Id=1) 
-                                                                        select 1 ;	
-                                                                      else 
-                                                                        select 0; ", new {id});
+                var exists = await connection.QuerySingleAsync<bool>(@"Genres_Exist", new {id}, commandType: CommandType.StoredProcedure);
                 return exists;
             }
         }
@@ -84,7 +86,7 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using( var connection = new SqlConnection(connectionString))
             {
-                await connection.ExecuteAsync(@"update Geners set Name=@Name where id=@Id",genre);
+                await connection.ExecuteAsync(@"Genres_Update", new {genre.Id,genre.Name},commandType:CommandType.StoredProcedure);
             }
 
         }
