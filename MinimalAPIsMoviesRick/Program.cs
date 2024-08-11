@@ -6,14 +6,13 @@ using Microsoft.Extensions.Options;
 using MinimalAPIsMoviesRick.EndPoints;
 using MinimalAPIsMoviesRick.Entities;
 using MinimalAPIsMoviesRick.Repositories;
+using MinimalAPIsMoviesRick.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Services Zone - Begin
     
-builder.Services.AddScoped<IGenresRepository, GenresRepository>();
 
-builder.Services.AddScoped<IActorsRepository, ActorsRepository>();
 
 var lastName = builder.Configuration.GetValue<string>("lastName");
 
@@ -44,6 +43,14 @@ builder.Services.AddOutputCache();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IGenresRepository, GenresRepository>();
+
+builder.Services.AddScoped<IActorsRepository, ActorsRepository>();
+
+//builder.Services.AddTransient<IFileStorage,AzureFileStorage>();
+builder.Services.AddTransient<IFileStorage,LocalFileStorage>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
@@ -61,6 +68,7 @@ if (builder.Environment.IsDevelopment())
 
 }
 
+app.UseStaticFiles();
 app.UseCors();
 
 app.UseOutputCache();
