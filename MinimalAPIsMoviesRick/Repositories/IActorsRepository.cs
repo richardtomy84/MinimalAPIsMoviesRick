@@ -6,7 +6,7 @@ namespace MinimalAPIsMoviesRick.Repositories
     public interface IActorsRepository
     {
         Task<int> Create(Actor actor);
-        void Delete(int id);
+        Task Delete(int id);
         Task<bool> Exist(int id);
         Task<List<Actor>> GetAll(PaginationDTO pagination);
         Task<Actor?> GetById(int id);

@@ -92,7 +92,7 @@ namespace MinimalAPIsMoviesRick.Repositories
             }
         }
 
-        public async void Delete(int id)
+        public async Task Delete(int id)
         {
 
             using (var connection = new SqlConnection(connectionString))
