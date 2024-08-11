@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using MinimalAPIsMoviesRick.DTOs;
 using MinimalAPIsMoviesRick.Entities;
 using System.Data;
 
@@ -8,11 +9,12 @@ namespace MinimalAPIsMoviesRick.Repositories
     public class ActorsRepository : IActorsRepository
     {
         private readonly string connectionString;
+        private readonly HttpContext httpContext;
 
-        public ActorsRepository(IConfiguration configuration)
+        public ActorsRepository(IConfiguration configuration,IHttpContextAccessor httpContextAccessor)
         {
             connectionString = configuration.GetConnectionString("DefaultConnection")!;
-
+            httpContext = httpContextAccessor.HttpContext!;
         }
 
         public async Task<int> Create(Actor actor)
@@ -31,14 +33,21 @@ namespace MinimalAPIsMoviesRick.Repositories
                 return id;
             }
         }
-        public async Task<List<Actor>> GetAll()
+        public async Task<List<Actor>> GetAll(PaginationDTO pagination)
         {
-            using (SqlConnection connection = new SqlConnection())
+            using (var connection = new SqlConnection(connectionString))
             {
                 var actors = await connection.QueryAsync<Actor>("Actors_GetAll",
+                    new {pagination.Page ,pagination.RecordsPerPage},
                     commandType: CommandType.StoredProcedure);
+
+                var actorCount = await connection.QuerySingleAsync<int>("Actors_Count", 
+                    commandType: CommandType.StoredProcedure);
+                httpContext.Response.Headers.Append("totalAmountOfRecords", actorCount.ToString());
                 return actors.ToList();
             }
+
+
 
         }
 
@@ -91,6 +100,16 @@ namespace MinimalAPIsMoviesRick.Repositories
                 await connection.ExecuteAsync("Actors_Delete", new { id }, commandType: CommandType.StoredProcedure);
             }
 
+        }
+
+        public async Task<List<Actor>> GetByName(string name)
+        {
+            using (var connection=new SqlConnection(connectionString))
+            {
+                var actors = await connection.QueryAsync<Actor>("Actors_GetByName",
+                    new { name }, commandType: CommandType.StoredProcedure);
+                return actors.ToList();
+            }
         }
     }
 }

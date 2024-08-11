@@ -1,4 +1,5 @@
-﻿using MinimalAPIsMoviesRick.Entities;
+﻿using MinimalAPIsMoviesRick.DTOs;
+using MinimalAPIsMoviesRick.Entities;
 
 namespace MinimalAPIsMoviesRick.Repositories
 {
@@ -7,8 +8,9 @@ namespace MinimalAPIsMoviesRick.Repositories
         Task<int> Create(Actor actor);
         void Delete(int id);
         Task<bool> Exist(int id);
-        Task<List<Actor>> GetAll();
+        Task<List<Actor>> GetAll(PaginationDTO pagination);
         Task<Actor?> GetById(int id);
+        Task<List<Actor>> GetByName(string name);
         Task update(Actor actor);
     }
 }
