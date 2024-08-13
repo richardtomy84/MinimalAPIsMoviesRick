@@ -59,7 +59,7 @@ var app = builder.Build();
 
  app.MapGroup("/genres").MapGenres();  // Removed var genresEndpoints =
  app.MapGroup("/actors").MapActors();
-
+ app.MapGroup("/movies").MapMovies();
 
 //Middlewares Zone - Begin
 
