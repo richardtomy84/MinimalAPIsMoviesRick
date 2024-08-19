@@ -24,10 +24,10 @@ namespace MinimalAPIsMoviesRick.Repositories
             {
                 var id = await connection.QuerySingleAsync<int>("Movies_create", new
                 {
-                    movie.Title,
+                    movie.Titile,
                     movie.Poster,
                     movie.ReleaseDate,
-                    movie.InTheaters
+                    movie.InTheater
                 }, commandType: CommandType.StoredProcedure);
 
                 movie.Id = id;
@@ -82,8 +82,8 @@ namespace MinimalAPIsMoviesRick.Repositories
                 await connection.ExecuteAsync("Movies_Update", new
                 {
                     movie.Id,
-                    movie.Title,
-                    movie.InTheaters,
+                    movie.Titile,
+                    movie.InTheater,
                     movie.Poster,
                     movie.ReleaseDate
 
