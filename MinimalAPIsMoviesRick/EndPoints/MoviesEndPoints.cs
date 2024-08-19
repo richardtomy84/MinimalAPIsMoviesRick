@@ -15,10 +15,11 @@ namespace MinimalAPIsMoviesRick.EndPoints
         public static RouteGroupBuilder MapMovies(this RouteGroupBuilder group)
         {
              group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("movies-get"));
-            // group.MapGet("/{id:int}", GetById);
+             group.MapGet("/{id:int}", GetById);
 
             group.MapPost("/",create).DisableAntiforgery();
-           
+           group.MapPut("/{id:int}", Update).DisableAntiforgery();
+
             return group;
 
         }
@@ -33,7 +34,7 @@ namespace MinimalAPIsMoviesRick.EndPoints
 
         }
 
-        static async Task<Results<Ok<MovieDTO>,NotFound>> GetById(int id, IMoviesRepository repository,Mapper mapper
+        static async Task<Results<Ok<MovieDTO>,NotFound>> GetById(int id, IMoviesRepository repository,IMapper mapper
             )
         {
             var movie = await repository.GetById(id);
@@ -61,6 +62,32 @@ namespace MinimalAPIsMoviesRick.EndPoints
             await outputCacheStore.EvictByTagAsync("movies-get", default);
             var movieDTO = mapper.Map<MovieDTO>(movie);
             return TypedResults.Created($"movies/{id}", movieDTO);
+        }
+
+        static async Task<Results<NoContent, NotFound>> Update(int id, [FromForm] CreateMovieDTO createMovieDTO,
+            IMoviesRepository repository,IFileStorage fileStorage,IOutputCacheStore outputCacheStore,IMapper mapper)
+        {
+            var movieDb= await repository.GetById(id);
+            if (movieDb is null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            var movieForUpdate=mapper.Map<Movie>(createMovieDTO);
+            movieForUpdate.Id=id;
+            movieForUpdate.Poster =movieDb.Poster;
+
+            if (createMovieDTO.Poster is not null)
+            {
+                var url = await fileStorage.Edit(movieForUpdate.Poster,container,
+                    createMovieDTO.Poster);
+                movieForUpdate.Poster = url;
+            }
+
+            await repository.Update(movieForUpdate);
+            await outputCacheStore.EvictByTagAsync("movies-tag",default);
+
+            return TypedResults.NoContent();
         }
     }
 }
