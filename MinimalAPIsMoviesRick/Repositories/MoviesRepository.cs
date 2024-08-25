@@ -58,10 +58,22 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                var movie = await connection.QueryFirstOrDefaultAsync<Movie>("Movies_GetById",
-                    new { id }, commandType: CommandType.StoredProcedure);
+                //now use multiple query result in Movies_GetById  ( Query related data )
+                using (var multi = await
+                    connection.QueryMultipleAsync("Movies_GetById", new {id}))
+                {
+                    var movie =  await multi.ReadFirstAsync<Movie>();
+                    var comments = await multi.ReadAsync<Comment>();
 
-                return movie;
+                    movie.Comments = comments.ToList();
+
+                    return movie;
+
+                }
+                /*
+                var movie = await connection.QueryFirstOrDefaultAsync<Movie>("Movies_GetById",
+                    new { id }, commandType: CommandType.StoredProcedure); */
+
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.IdentityModel.Tokens;
 using MinimalAPIsMoviesRick.DTOs;
 using MinimalAPIsMoviesRick.Entities;
 using MinimalAPIsMoviesRick.Repositories;
@@ -22,6 +23,8 @@ namespace MinimalAPIsMoviesRick.EndPoints
             //group.MapGet("/{id:int}", GetByIdN);
 
             group.MapPost("/",Create);
+            group.MapPut("/{id:int}", Update);
+            group.MapDelete("/{id:int}", Delete);
             return group;
         }
 
@@ -78,6 +81,53 @@ namespace MinimalAPIsMoviesRick.EndPoints
             await outputCacheStore.EvictByTagAsync("comments-get", default);
             var commentDTO = mapper.Map<CommentDTO>(comment);
             return TypedResults.Created($"/comment/{id}", commentDTO);
+
+        }
+
+        static async Task<Results<NoContent,NotFound>> Update(int movieId, int Id, CreateCommentDTO createCommentDTO, IOutputCacheStore outputCacheStore,
+            ICommentsRepository commentsRepository, IMoviesRepository moviesRepository, IMapper mapper)
+        {
+            if (!await moviesRepository.Exists(movieId))
+            {
+                return TypedResults.NotFound();
+
+            }
+
+            if(!await commentsRepository.Exists(Id))
+            {
+                return TypedResults.NotFound();
+
+            }
+
+            var comment = mapper.Map<Comment>(createCommentDTO);
+            comment.Id = Id;
+            comment.MovieId = movieId;
+
+            await commentsRepository.Update(comment);
+            await outputCacheStore.EvictByTagAsync("comments-get", default);
+            return TypedResults.NoContent();
+
+        }
+
+        static async Task<Results<NoContent,NotFound>> Delete(int movieId,int id,ICommentsRepository commentsRepository,
+            IMoviesRepository moviesRepository, IOutputCacheStore outputCacheStore)
+        {
+            if (!await moviesRepository.Exists(movieId))
+            {
+                return TypedResults.NotFound();
+
+            }
+
+            if (!await commentsRepository.Exists(id))
+            {
+                return TypedResults.NotFound();
+
+            }
+
+            await commentsRepository.Delete(id);
+
+            await outputCacheStore.EvictByTagAsync("comments-get", default);
+            return TypedResults.NoContent();
 
         }
 
