@@ -19,8 +19,9 @@ namespace MinimalAPIsMoviesRick.EndPoints
 
             group.MapPost("/",create).DisableAntiforgery();
            group.MapPut("/{id:int}", Update).DisableAntiforgery();
-
-            return group;
+            group.MapDelete("/{id:int}",Delete);
+                
+                return group;
 
         }
 
@@ -87,6 +88,21 @@ namespace MinimalAPIsMoviesRick.EndPoints
             await repository.Update(movieForUpdate);
             await outputCacheStore.EvictByTagAsync("movies-tag",default);
 
+            return TypedResults.NoContent();
+        }
+
+        static async Task<Results<NoContent,NotFound>> Delete(int id,IMoviesRepository repository,
+                                      IOutputCacheStore outputCacheStore, IFileStorage fileStorage)
+        {
+            var movieDB= await repository.GetById(id);
+            if (movieDB is null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            await repository.Delete(id);
+            await fileStorage.Delete(movieDB.Poster,container);
+            await outputCacheStore.EvictByTagAsync("movies-get", default);
             return TypedResults.NoContent();
         }
     }

@@ -7,6 +7,7 @@ using MinimalAPIsMoviesRick.EndPoints;
 using MinimalAPIsMoviesRick.Entities;
 using MinimalAPIsMoviesRick.Repositories;
 using MinimalAPIsMoviesRick.Services;
+using System.Windows.Input;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,7 @@ builder.Services.AddScoped<IGenresRepository, GenresRepository>();
 
 builder.Services.AddScoped<IActorsRepository, ActorsRepository>();
 builder.Services.AddScoped<IMoviesRepository, MoviesRepository>();
+builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 
 //builder.Services.AddTransient<IFileStorage,AzureFileStorage>();
 
@@ -60,7 +62,7 @@ var app = builder.Build();
  app.MapGroup("/genres").MapGenres();  // Removed var genresEndpoints =
  app.MapGroup("/actors").MapActors();
  app.MapGroup("/movies").MapMovies();
-
+app.MapGroup("/movie/{movieId:int}/comments").MapComments();
 //Middlewares Zone - Begin
 
 if (builder.Environment.IsDevelopment())
