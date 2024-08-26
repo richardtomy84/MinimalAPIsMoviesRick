@@ -7,7 +7,7 @@ namespace MinimalAPIsMoviesRick.Validaton
     {
         public CreateGenereDTOValidator()
         {
-            RuleFor(p=>p.Name).NotEmpty();
+            RuleFor(p=>p.Name).NotEmpty().WithMessage("The field {PropertyName} is required");
         }
     }
 }
