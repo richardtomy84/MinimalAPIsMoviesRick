@@ -60,12 +60,37 @@ namespace MinimalAPIsMoviesRick.Repositories
             {
                 //now use multiple query result in Movies_GetById  ( Query related data )
                 using (var multi = await
-                    connection.QueryMultipleAsync("Movies_GetById", new {id}))
+                    connection.QueryMultipleAsync("Movies_GetById", new { id }))
                 {
-                    var movie =  await multi.ReadFirstAsync<Movie>();
+                    var movie = await multi.ReadFirstAsync<Movie>();
                     var comments = await multi.ReadAsync<Comment>();
+                    var genres = await multi.ReadAsync<Genre>();
+                    var actors = await multi.ReadAsync<ActorMovieDTO>();
 
                     movie.Comments = comments.ToList();
+
+                    foreach (var genre in genres)
+                    {
+                        movie.GenresMovies.Add(new GenreMovie
+                        {
+                            GenreId = genre.Id,
+                            Genre = genre,
+                        });
+                    }
+
+                    foreach (var actor in actors)
+                    {
+                        movie.ActorMoviess.Add(new ActorMovie
+                        {
+                            ActorId = actor.Id,
+                            Character = actor.Character,
+                            Actor = new Actor
+                            {
+                                Name = actor.Name,
+                            }
+                        });
+                    }
+
 
                     return movie;
 
@@ -114,23 +139,47 @@ namespace MinimalAPIsMoviesRick.Repositories
             }
         }
 
-        public async Task Assign(int id,List<int> genresIds)
+        public async Task Assign(int id, List<int> genresIds)
         {
             var dt = new DataTable();
             dt.Columns.Add("Id", typeof(int));
 
-            foreach (var genreId in genresIds )
+            foreach (var genreId in genresIds)
             {
                 dt.Rows.Add(genreId);
             }
 
             using (var connection = new SqlConnection(connectionString))
             {
-                await connection.ExecuteAsync("Movies_AssignGenres", 
-                    new {movieId=id,genresIds= dt } );
+                await connection.ExecuteAsync("Movies_AssignGenres",
+                    new { movieId = id, genresIds = dt });
             }
         }
 
+        public async Task Assign(int id, List<ActorMovie> actors)
+        {
+            for (int i = 1; i <= actors.Count; i++)
+            {
 
+                actors[i - 1].Order = i;
+
+            }
+
+            var dt = new DataTable();
+            dt.Columns.Add("ActorId", typeof(int));
+            dt.Columns.Add("Character", typeof(string));
+            dt.Columns.Add("Order", typeof(int));
+
+            foreach (var actorMovies in actors)
+            {
+                dt.Rows.Add(actorMovies.ActorId, actorMovies.Character, actorMovies.Order);
+            }
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.ExecuteAsync("Movies_AssignActors",
+                    new { movieId = id, actors = dt });
+            }
+
+        }
     }
 }
