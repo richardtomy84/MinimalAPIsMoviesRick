@@ -1,4 +1,5 @@
 
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
@@ -56,10 +57,11 @@ builder.Services.AddTransient<IFileStorage,LocalFileStorage>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
 
- app.MapGroup("/genres").MapGenres();  // Removed var genresEndpoints =
+ app.MapGroup("/genres").MapGenres();  // Removed var genresEndpoints = 
  app.MapGroup("/actors").MapActors();
  app.MapGroup("/movies").MapMovies();
 app.MapGroup("/movie/{movieId:int}/comments").MapComments();
