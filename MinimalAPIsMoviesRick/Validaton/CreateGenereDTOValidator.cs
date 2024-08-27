@@ -1,16 +1,22 @@
 ﻿using FluentValidation;
 using MinimalAPIsMoviesRick.DTOs;
+using MinimalAPIsMoviesRick.Repositories;
 
 namespace MinimalAPIsMoviesRick.Validaton
 {
     public class CreateGenereDTOValidator:AbstractValidator<CreateGenreDTO>
     {
-        public CreateGenereDTOValidator()
+        public CreateGenereDTOValidator(IGenresRepository genresRepository)
         {
             RuleFor(p=>p.Name).NotEmpty().WithMessage("The field {PropertyName} is required")
                 .MaximumLength(150)
                 .WithMessage("The Field {PropertyName} should be less than {MaxLength} characters")
-                .Must(FirstLetterIsUppercase).WithMessage("The field {PropertyName} should start with upercase");
+                .Must(FirstLetterIsUppercase).WithMessage("The field {PropertyName} should start with upercase")
+                .MustAsync(async(name, _) =>{
+                    var exists = await genresRepository.Exists(id: 0, name);
+                    return !exists;
+            
+                 }).WithMessage(g=>$"A genre with the name{g.Name} already exists ");
         }
 
         private bool FirstLetterIsUppercase(string value)
