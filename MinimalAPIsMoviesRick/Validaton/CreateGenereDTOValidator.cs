@@ -16,10 +16,12 @@ namespace MinimalAPIsMoviesRick.Validaton
                 int.TryParse(routeVlueIdString, out id);
             }
 
-            RuleFor(p=>p.Name).NotEmpty().WithMessage("The field {PropertyName} is required")
+
+
+            RuleFor(p=>p.Name).NotEmpty().WithMessage(ValidationUtilities.NonEmptyMessage)
                 .MaximumLength(150)
-                .WithMessage("The Field {PropertyName} should be less than {MaxLength} characters")
-                .Must(FirstLetterIsUppercase).WithMessage("The field {PropertyName} should start with upercase")
+                .WithMessage(ValidationUtilities.MaximunLengthMessage)
+                .Must(ValidationUtilities.FirstLetterIsUppercase).WithMessage(ValidationUtilities.FirstLetterIsUpperCaseMessage)
                 .MustAsync(async(name, _) =>{
                     var exists = await genresRepository.Exists(id, name);
                     return !exists;
@@ -27,15 +29,6 @@ namespace MinimalAPIsMoviesRick.Validaton
                  }).WithMessage(g=>$"A genre with the name{g.Name} already exists ");
         }
 
-        private bool FirstLetterIsUppercase(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return true;
-            }
-
-            var firstLetter = value[0].ToString();
-            return firstLetter == firstLetter.ToUpper();
-        }
+   
     }
 }

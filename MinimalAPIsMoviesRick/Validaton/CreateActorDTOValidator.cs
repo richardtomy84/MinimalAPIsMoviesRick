@@ -8,14 +8,14 @@ namespace MinimalAPIsMoviesRick.Validaton
     {
         public CreateActorDTOValidator()
         {
-            RuleFor(p=>p.Name).NotEmpty().WithMessage("The field {PropertyName} is required")
+            RuleFor(p=>p.Name).NotEmpty().WithMessage(ValidationUtilities.NonEmptyMessage)
                 .MaximumLength(150)
-                .WithMessage("The Field {PropertyName} should be less than {MaxLength} characters");
+                .WithMessage(ValidationUtilities.MaximunLengthMessage);
 
             var minimumDate = new DateTime(1900, 1, 1);
             
             RuleFor(p=>p.DateOfBirth).GreaterThanOrEqualTo(minimumDate)
-                .WithMessage("The field {PropertyName} should be greater than "+minimumDate.ToString("yyyy-MM-dd"));
+                .WithMessage(ValidationUtilities.GreaterThanDate(minimumDate));
         }
     }
 }
