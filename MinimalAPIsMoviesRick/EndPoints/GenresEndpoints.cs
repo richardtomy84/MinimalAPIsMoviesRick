@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
 using MinimalAPIsMoviesRick.DTOs;
 using MinimalAPIsMoviesRick.Entities;
+using MinimalAPIsMoviesRick.Filters;
 using MinimalAPIsMoviesRick.Repositories;
 
 namespace MinimalAPIsMoviesRick.EndPoints
@@ -14,13 +15,7 @@ namespace MinimalAPIsMoviesRick.EndPoints
         {
             group.MapGet("", GetGenre).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("genres-get"));
 
-            group.MapGet("/{id:int}", GetById).AddEndpointFilter(async (eficContext,next) =>
-            {
-                //This is the code that will execute before the endpoint
-                var result = await next(eficContext);
-                //This is the code that will excecute after the endpoint 
-                return result;
-            });
+            group.MapGet("/{id:int}", GetById).AddEndpointFilter<TestFilters>();
 
             //Data from SQL
             group.MapPost("/", Create);
