@@ -14,7 +14,13 @@ namespace MinimalAPIsMoviesRick.EndPoints
         {
             group.MapGet("", GetGenre).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("genres-get"));
 
-            group.MapGet("/{id:int}", GetById);
+            group.MapGet("/{id:int}", GetById).AddEndpointFilter(async (eficContext,next) =>
+            {
+                //This is the code that will execute before the endpoint
+                var result = await next(eficContext);
+                //This is the code that will excecute after the endpoint 
+                return result;
+            });
 
             //Data from SQL
             group.MapPost("/", Create);
