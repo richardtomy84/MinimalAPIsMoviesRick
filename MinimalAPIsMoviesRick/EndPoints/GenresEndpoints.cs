@@ -39,8 +39,8 @@ namespace MinimalAPIsMoviesRick.EndPoints
             return TypedResults.Ok(genersDTOs);
         }
 
-        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById(int id, IGenresRepository genresRepository,
-            IMapper mapper)
+        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById( IGenresRepository genresRepository,
+            IMapper mapper, int id)
         {
 
             var genre = await genresRepository.GetById(id);
