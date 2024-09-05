@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.IdentityModel.Tokens;
 using MinimalAPIsMoviesRick.DTOs;
 using MinimalAPIsMoviesRick.Entities;
+using MinimalAPIsMoviesRick.Filters;
 using MinimalAPIsMoviesRick.Repositories;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -22,8 +23,8 @@ namespace MinimalAPIsMoviesRick.EndPoints
             group.MapGet("/{id:int}", GetById);
             //group.MapGet("/{id:int}", GetByIdN);
 
-            group.MapPost("/",Create);
-            group.MapPut("/{id:int}", Update);
+            group.MapPost("/",Create).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>();
+            group.MapPut("/{id:int}", Update).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>(); ;
             group.MapDelete("/{id:int}", Delete);
             return group;
         }
