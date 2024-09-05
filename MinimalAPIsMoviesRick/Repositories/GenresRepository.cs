@@ -105,8 +105,6 @@ namespace MinimalAPIsMoviesRick.Repositories
                                              from Geners where 
                                              id = @Id",  new {id});*/
                 var genre = await connection.QueryFirstOrDefaultAsync<Genre>(@"Genres_GetById", new { id }, commandType: CommandType.StoredProcedure);
-
-
                 return genre;
             }
 

@@ -18,9 +18,9 @@ namespace MinimalAPIsMoviesRick.EndPoints
             group.MapGet("/{id:int}", GetById).AddEndpointFilter<TestFilters>();
 
             //Data from SQL
-            group.MapPost("/", Create);
+            group.MapPost("/", Create).AddEndpointFilter<GenresValidationFilter>();
 
-            group.MapPut("/{id:int}", Update);
+            group.MapPut("/{id:int}", Update).AddEndpointFilter<GenresValidationFilter>();
 
             group.MapDelete("/{id:int}", Delete);
 
@@ -64,22 +64,27 @@ namespace MinimalAPIsMoviesRick.EndPoints
               
         }
 
-        static async Task<Results<Created<GenreDTO>,ValidationProblem>> Create(CreateGenreDTO createGenreDTO, IGenresRepository genresRepository, IOutputCacheStore outputCacheStore,
-            IMapper mapper,IValidator<CreateGenreDTO> validator)
+        static async Task<Created<GenreDTO>> Create(CreateGenreDTO createGenreDTO, IGenresRepository genresRepository, IOutputCacheStore outputCacheStore,
+            IMapper mapper)
         {
+            /* not use because we use validater in AddEndpointFilter<GenresValidationFilter>(); 
             var validationResult= await validator.ValidateAsync(createGenreDTO);
             if (!validationResult.IsValid) {
 
                 return TypedResults.ValidationProblem(validationResult.ToDictionary());
             
             }
+
+            * /
              
-            var genre = mapper.Map<Genre>(createGenreDTO);
               /*  new Genre
             {
                 Name = createGenreDTO.Name,
             };
             */
+
+            var genre = mapper.Map<Genre>(createGenreDTO);
+
             var id = await genresRepository.Create(genre);
             await outputCacheStore.EvictByTagAsync("genres-get", default);
             // return TypedResults.Ok(genre);
@@ -97,10 +102,11 @@ namespace MinimalAPIsMoviesRick.EndPoints
         }
 
 
-        static async Task<Results<NotFound, NoContent, ValidationProblem>> Update(int id, CreateGenreDTO createGenreDTO, IGenresRepository repository, 
+        static async Task<Results<NotFound, NoContent>> Update(int id, CreateGenreDTO createGenreDTO, IGenresRepository repository, 
             IOutputCacheStore outputCacheStore,
-            IMapper mapper, IValidator <CreateGenreDTO> validator)
+            IMapper mapper)
         {
+            /* not use because we use validater in group.MapPut("/{id:int}", Update).AddEndpointFilter<GenresValidationFilter>();
 
             var validationResult = await validator.ValidateAsync(createGenreDTO);
 
@@ -110,6 +116,7 @@ namespace MinimalAPIsMoviesRick.EndPoints
                 return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
             }
+            */
 
             var exists = await repository.Exists(id);
 
