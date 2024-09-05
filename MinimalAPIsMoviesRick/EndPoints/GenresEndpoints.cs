@@ -18,9 +18,9 @@ namespace MinimalAPIsMoviesRick.EndPoints
             group.MapGet("/{id:int}", GetById).AddEndpointFilter<TestFilters>();
 
             //Data from SQL
-            group.MapPost("/", Create).AddEndpointFilter<GenresValidationFilter>();
+            group.MapPost("/", Create).AddEndpointFilter<ValidationFilter<CreateGenreDTO>>();
 
-            group.MapPut("/{id:int}", Update).AddEndpointFilter<GenresValidationFilter>();
+            group.MapPut("/{id:int}", Update).AddEndpointFilter<ValidationFilter<CreateGenreDTO>>();
 
             group.MapDelete("/{id:int}", Delete);
 
@@ -83,7 +83,7 @@ namespace MinimalAPIsMoviesRick.EndPoints
             };
             */
 
-            var genre = mapper.Map<Genre>(createGenreDTO);
+                        var genre = mapper.Map<Genre>(createGenreDTO);
 
             var id = await genresRepository.Create(genre);
             await outputCacheStore.EvictByTagAsync("genres-get", default);
