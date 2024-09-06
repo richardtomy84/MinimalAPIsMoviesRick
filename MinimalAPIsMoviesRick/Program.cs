@@ -79,7 +79,15 @@ if (builder.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-//app.UseExceptionHandler();
+app.UseExceptionHandler(exceptionHandlerApp => exceptionHandlerApp.Run(async context =>
+{
+    await Results.BadRequest(new {
+        type = "error",
+        message = "an Unexpected expection has occured Rick",
+        status=500, }).ExecuteAsync(context);
+
+}
+));
 app.UseStatusCodePages();
 app.UseStaticFiles();
 app.UseCors();
