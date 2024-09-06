@@ -79,7 +79,7 @@ if (builder.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseExceptionHandler();
+//app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseStaticFiles();
 app.UseCors();
@@ -89,6 +89,10 @@ app.UseOutputCache();
 
 //Endpoints Starts
 app.MapGet("/", () => "Hello World! " +lastName);
+app.MapGet("/error", () =>
+{
+    throw new InvalidOperationException("example error");
+});
 
 
 /* data run from local
