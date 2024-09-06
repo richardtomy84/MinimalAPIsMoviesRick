@@ -17,7 +17,8 @@ namespace MinimalAPIsMoviesRick.EndPoints
         private readonly static string container = "actors";
         public static RouteGroupBuilder MapActors(this RouteGroupBuilder group) 
         {
-            group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromMinutes(1)).Tag("actor-get"));
+            group.MapGet("/", GetAll);
+            //.CacheOutput(c => c.Expire(TimeSpan.FromMinutes(1)).Tag("actor-get"));
             group.MapGet("/{id:int}", GetById);
             group.MapGet("getByName/{name}", GetByName);
             group.MapPost("/",Create).DisableAntiforgery().AddEndpointFilter<ValidationFilter<CreateActorDTO>>();

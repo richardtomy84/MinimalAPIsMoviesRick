@@ -59,6 +59,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
  app.MapGroup("/genres").MapGenres();  // Removed var genresEndpoints = 
@@ -74,6 +76,11 @@ if (builder.Environment.IsDevelopment())
 
 }
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 app.UseStaticFiles();
 app.UseCors();
 
