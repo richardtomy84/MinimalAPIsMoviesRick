@@ -74,7 +74,7 @@ Options.TokenValidationParameters = new TokenValidationParameters
     ValidateLifetime = true,
     ValidateIssuerSigningKey = true,
     ClockSkew = TimeSpan.Zero,
-     IssuerSigningKeys = KeysHandler.GetAllKeys(builder.Configuration),
+    IssuerSigningKeys = KeysHandler.GetAllKeys(builder.Configuration),
   //  IssuerSigningKey = KeysHandler.GetKey(builder.Configuration).First()
 });
 

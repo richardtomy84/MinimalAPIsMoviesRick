@@ -36,14 +36,13 @@ namespace MinimalAPIsMoviesRick.EndPoints
             if (result.Succeeded)
             {
                 var authentionResponse = 
-                    await BuildToken(userCredentialsDTO, configuration,
+                        await BuildToken(userCredentialsDTO, configuration,
                     userManager);
                 return TypedResults.Ok(authentionResponse);
             }
             else
             { 
                 return TypedResults.BadRequest(result.Errors);
-            
             }
              
         }

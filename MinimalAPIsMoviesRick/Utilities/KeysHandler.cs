@@ -29,10 +29,10 @@ namespace MinimalAPIsMoviesRick.Utilities
         }
 
         public static IEnumerable<SecurityKey> GetAllKeys(IConfiguration configuration)
-        {
+        { 
             var signingKeys = configuration.GetSection(KeysSection)
               .GetChildren();
-
+                
             foreach (var signingKey in signingKeys)
             {
                 if (signingKey[keysSection_value] is string secretkey)
@@ -47,3 +47,4 @@ namespace MinimalAPIsMoviesRick.Utilities
         }
     }
 }
+  

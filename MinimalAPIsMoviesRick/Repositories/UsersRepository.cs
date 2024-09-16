@@ -13,6 +13,7 @@ namespace MinimalAPIsMoviesRick.Repositories
         {
 
             connectionstring = configuration.GetConnectionString("DefaultConnection")!;
+
         }
 
         public async Task<IdentityUser?> GetByEmail(string normalizedEmail)
