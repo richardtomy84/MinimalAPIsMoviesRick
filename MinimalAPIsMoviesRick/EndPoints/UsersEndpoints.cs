@@ -15,7 +15,10 @@ namespace MinimalAPIsMoviesRick.EndPoints
     {
         public static RouteGroupBuilder MapUsers(this RouteGroupBuilder group)
         {
-            group.MapPost("/", Register)
+            group.MapPost("/register", Register)
+                .AddEndpointFilter<ValidationFilter<UserCredentialsDTO>>();
+
+            group.MapPost("/login", Login)
                 .AddEndpointFilter<ValidationFilter<UserCredentialsDTO>>();
             return group; 
         
@@ -46,6 +49,36 @@ namespace MinimalAPIsMoviesRick.EndPoints
             }
              
         }
+
+        static async Task<Results<Ok<AuthenticationResponseDTO>, BadRequest<string>>> Login(
+            UserCredentialsDTO userCredentialsDTO, [FromServices] SignInManager<IdentityUser> signInManager,
+            [FromServices] UserManager<IdentityUser> userManager, IConfiguration configuration)
+        {
+            var user = await userManager.FindByEmailAsync(userCredentialsDTO.Email);
+            if(user == null)
+            {
+                return TypedResults.BadRequest("There was the problem with the email or password");
+            }
+
+            var ressults = await signInManager.CheckPasswordSignInAsync(user, userCredentialsDTO.Password, lockoutOnFailure: false);
+
+            if (ressults.Succeeded) {
+             
+                var authentionResponse =
+                        await BuildToken(userCredentialsDTO, configuration,
+                    userManager);
+                return TypedResults.Ok(authentionResponse);
+
+            }
+
+            else
+            {
+                return TypedResults.BadRequest("There was the problem with the email or password");
+
+            }
+
+        }
+
 
         private async static Task<AuthenticationResponseDTO> BuildToken(UserCredentialsDTO userCredentialsDTO,
             IConfiguration configuration,UserManager<IdentityUser> userManager)
