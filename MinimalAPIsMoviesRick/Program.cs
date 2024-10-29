@@ -61,23 +61,29 @@ builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 builder.Services.AddTransient<IFileStorage,LocalFileStorage>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IUsersService, UsersService>();
+
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddAuthentication().AddJwtBearer(Options =>
-Options.TokenValidationParameters = new TokenValidationParameters
-{
-    ValidateIssuer = false,
-    ValidateAudience = false,
-    ValidateLifetime = true,
-    ValidateIssuerSigningKey = true,
-    ClockSkew = TimeSpan.Zero,
-    IssuerSigningKeys = KeysHandler.GetAllKeys(builder.Configuration),
-  //  IssuerSigningKey = KeysHandler.GetKey(builder.Configuration).First()
-});
+{ 
+   Options.MapInboundClaims = false;
 
+    Options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKeys = KeysHandler.GetAllKeys(builder.Configuration),
+        //  IssuerSigningKey = KeysHandler.GetKey(builder.Configuration).First()
+    };
+
+});
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -100,7 +106,7 @@ app.UseSwaggerUI();
 app.UseExceptionHandler(exceptionHandlerApp => exceptionHandlerApp.Run(async context =>
 {
     var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-    var exception = exceptionHandlerFeature?.Error;
+    var exception = exceptionHandlerFeature?.Error;            
 
     var error = new Error();
     error.Date = DateTime.UtcNow;
@@ -129,7 +135,6 @@ app.MapGet("/error", () =>
 {
     throw new InvalidOperationException("example error");
 });
-
 
 app.Run();
 

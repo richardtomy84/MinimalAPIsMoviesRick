@@ -11,7 +11,7 @@ namespace MinimalAPIsMoviesRick.Repositories
 
         public ErrorsRepository(IConfiguration configuration)
         {
-            connetionString = configuration.GetConnectionString("DefaultConnection");
+            connetionString = configuration.GetConnectionString("DefaultConnection")!;
 
         }
         //Errors_Create

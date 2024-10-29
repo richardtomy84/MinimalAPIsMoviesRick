@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.IdentityModel.Tokens;
@@ -6,6 +7,7 @@ using MinimalAPIsMoviesRick.DTOs;
 using MinimalAPIsMoviesRick.Entities;
 using MinimalAPIsMoviesRick.Filters;
 using MinimalAPIsMoviesRick.Repositories;
+using MinimalAPIsMoviesRick.Services;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -23,7 +25,8 @@ namespace MinimalAPIsMoviesRick.EndPoints
             group.MapGet("/{id:int}", GetById);
             //group.MapGet("/{id:int}", GetByIdN);
 
-            group.MapPost("/",Create).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>();
+            group.MapPost("/",Create).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>()
+                .RequireAuthorization();
             group.MapPut("/{id:int}", Update).AddEndpointFilter<ValidationFilter<CreateCommentDTO>>(); ;
             group.MapDelete("/{id:int}", Delete);
             return group;
@@ -65,9 +68,9 @@ namespace MinimalAPIsMoviesRick.EndPoints
 
         }
 
-        static async Task<Results<Created<CommentDTO>,NotFound>> Create(int movieId,
+        static async Task<Results<Created<CommentDTO>,NotFound, BadRequest<string>>> Create(int movieId,
             CreateCommentDTO createCommentDTO,ICommentsRepository commentsRepository, 
-            IMoviesRepository moviesRepository,IMapper mapper,IOutputCacheStore outputCacheStore)
+            IMoviesRepository moviesRepository,IMapper mapper,IOutputCacheStore outputCacheStore, IUsersService usersService)
         {
             if (!await moviesRepository.Exists(movieId))
             {
@@ -75,9 +78,17 @@ namespace MinimalAPIsMoviesRick.EndPoints
 
             }
 
+            var user = await usersService.GetUser();
+
+            if (user is null) {
+
+                return TypedResults.BadRequest("User not found");
+            
+            }
+
             var comment = mapper.Map<Comment>(createCommentDTO);
             comment.MovieId = movieId;
-
+            comment.UserId = user.Id;
             var id= await commentsRepository.Create(comment);
             await outputCacheStore.EvictByTagAsync("comments-get", default);
             var commentDTO = mapper.Map<CommentDTO>(comment);
@@ -85,8 +96,8 @@ namespace MinimalAPIsMoviesRick.EndPoints
 
         }
 
-        static async Task<Results<NoContent,NotFound>> Update(int movieId, int Id, CreateCommentDTO createCommentDTO, IOutputCacheStore outputCacheStore,
-            ICommentsRepository commentsRepository, IMoviesRepository moviesRepository, IMapper mapper)
+        static async Task<Results<NoContent,NotFound,ForbidHttpResult>> Update(int movieId, int Id, CreateCommentDTO createCommentDTO, IOutputCacheStore outputCacheStore,
+            ICommentsRepository commentsRepository, IMoviesRepository moviesRepository, IMapper mapper,IUsersService usersService)
         {
             if (!await moviesRepository.Exists(movieId))
             {
@@ -94,10 +105,24 @@ namespace MinimalAPIsMoviesRick.EndPoints
 
             }
 
-            if(!await commentsRepository.Exists(Id))
+            var commentfromDB = await commentsRepository.GetById(Id);
+
+            if(commentfromDB is null)
             {
                 return TypedResults.NotFound();
 
+            }
+
+            var user = await usersService.GetUser();
+
+            if (user is null) {
+                return TypedResults.NotFound();
+            
+            }
+
+            if (commentfromDB.UserId !=user.Id)
+            {
+                return TypedResults.Forbid();
             }
 
             var comment = mapper.Map<Comment>(createCommentDTO);
